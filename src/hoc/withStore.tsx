@@ -1,6 +1,6 @@
 import React from "react";
-import Store from "../Store/Store";
-import useStore, {SubProps} from "../hooks/useStore";
+import {useStore, SubProps} from "../hooks/useStore";
+import {Store} from "../Store/Store";
 
 export interface InjectedStoreProps<S> {
     storeData?: S;
@@ -16,4 +16,4 @@ const withStore = <S extends object>(store: Store<S>, dynamicProps?: SubProps<S>
     }
 };
 
-export default withStore;
+export {withStore};

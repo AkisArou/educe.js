@@ -1,5 +1,5 @@
 import {useEffect, useMemo, useState} from "react";
-import Store from "../Store/Store";
+import {Store} from "../Store/Store";
 import {ENTIRE_STORE_LISTENERS} from "../Eventing/ENTIRE_STORE_LISTENERS";
 
 type OmittedProps = | "state" | "requestCleanup" | "requestEffect" | "immutableState" | "subscribe" | "unsubscribe";
@@ -66,5 +66,5 @@ function useStore<S extends object, StoreClass extends new (...args: any[]) => S
         : new Proxy(data, handler);
 }
 
-export default useStore;
+export {useStore};
 

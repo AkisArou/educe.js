@@ -1,6 +1,6 @@
 import Eventing from "../Eventing/Eventing";
 
-export default abstract class Store<T extends object> {
+export abstract class Store<T extends object> {
     protected abstract state: T;
     private readonly eventing: Eventing<T> = new Eventing<T>();
     public readonly subscribe = this.eventing.subscribe;
