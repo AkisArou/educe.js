@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "React state management library",
   "main": "lib/index.js",
+  "private": true,
   "types": "lib",
   "scripts": {
     "build": "tsc -p ."
