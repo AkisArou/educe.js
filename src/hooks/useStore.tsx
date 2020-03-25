@@ -26,14 +26,8 @@ function useStore<S extends object, StoreClass extends new (...args: any[]) => S
     store: Store<S> | (new () => Store<S>) | StoreClass,
     dynamicProps?: SubProps<S>,
     withEffects?: boolean,
-    listen?: boolean
-): readonly [S, Omit<InstanceType<StoreClass>, OmittedProps>] | S
-function useStore<S extends object, StoreClass extends new (...args: any[]) => Store<S>>(
-    store: Store<S> | (new () => Store<S>) | StoreClass,
-    dynamicProps?: SubProps<S>,
-    withEffects?: boolean,
     listen: boolean = true
-) {
+): readonly [S, Omit<InstanceType<StoreClass>, OmittedProps>] | S {
     const actualStore = useMemo(() => typeof store === "function" ? Store.getAddRef(store) : store, []) as Store<S>;
     const [data, setState] = useState<S>(() => actualStore.immutableState);
     const memoizedUnsubscribableProps = useMemo(() => new Set<keyof S | typeof ENTIRE_STORE_LISTENERS>(), []);
