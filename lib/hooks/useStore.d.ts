@@ -4,5 +4,6 @@ declare type OmittedProps = "state" | "requestCleanup" | "requestEffect" | "immu
 export declare type SubProps<IStoreType> = (keyof IStoreType)[] | keyof IStoreType | typeof ENTIRE_STORE_LISTENERS | null;
 declare function useStore<S extends object, StoreClass extends new (...args: any[]) => Store<S>>(store: (new () => Store<S>) | StoreClass, dynamicProps?: SubProps<S>, withEffects?: boolean, listen?: boolean): readonly [S, Omit<InstanceType<StoreClass>, OmittedProps>];
 declare function useStore<S extends object, StoreClass extends new (...args: any[]) => Store<S>>(store: Store<S>, dynamicProps?: SubProps<S>, withEffects?: boolean, listen?: boolean): S;
+declare function useStore<S extends object, StoreClass extends new (...args: any[]) => Store<S>>(store: Store<S> | (new () => Store<S>) | StoreClass, dynamicProps?: SubProps<S>, withEffects?: boolean, listen?: boolean): readonly [S, Omit<InstanceType<StoreClass>, OmittedProps>] | S;
 export { useStore };
 //# sourceMappingURL=useStore.d.ts.map
