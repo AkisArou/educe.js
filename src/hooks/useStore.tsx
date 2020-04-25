@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {Store} from "../Store/Store";
 import {ENTIRE_STORE_LISTENERS} from "../Eventing/ENTIRE_STORE_LISTENERS";
 
@@ -28,9 +28,9 @@ function useStore<S extends object, StoreClass extends new (...args: any[]) => S
     withEffects?: boolean,
     listen: boolean = true
 ): readonly [S, Omit<InstanceType<StoreClass>, OmittedProps>] | S {
-    const actualStore = useMemo(() => typeof store === "function" ? Store.getAddRef(store) : store, []) as Store<S>;
+    const {current: actualStore} = useRef<Store<S>>(typeof store === "function" ? Store.getAddRef(store) : store);
     const [data, setState] = useState<S>(() => actualStore.immutableState);
-    const memoizedUnsubscribableProps = useMemo(() => new Set<keyof S | typeof ENTIRE_STORE_LISTENERS>(), []);
+    const {current: memoizedUnsubscribableProps} = useRef(new Set<keyof S | typeof ENTIRE_STORE_LISTENERS>());
 
     const handler = {
         get(target: S, prop: keyof S) {
@@ -56,7 +56,7 @@ function useStore<S extends object, StoreClass extends new (...args: any[]) => S
         return () => {
             listen && actualStore.unsubscribe(setState, memoizedUnsubscribableProps);
             withEffects && actualStore.requestCleanup();
-            if(typeof store === "function") Store.removeRefDelete(store);
+            if (typeof store === "function") Store.removeRefDelete(store);
         };
     }, [withEffects, listen]);
 
