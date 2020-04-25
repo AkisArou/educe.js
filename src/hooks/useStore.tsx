@@ -28,7 +28,7 @@ function useStore<S extends object, StoreClass extends new (...args: any[]) => S
     withEffects?: boolean,
     listen: boolean = true
 ): readonly [S, Omit<InstanceType<StoreClass>, OmittedProps>] | S {
-    const {current: actualStore} = useRef<Store<S>>(typeof store === "function" ? Store.getAddRef(store) : store);
+    const [actualStore] = useState<Store<S>>(() => typeof store === "function" ? Store.getAddRef(store) : store)
     const [data, setState] = useState<S>(() => actualStore.immutableState);
     const {current: memoizedUnsubscribableProps} = useRef(new Set<keyof S | typeof ENTIRE_STORE_LISTENERS>());
 
