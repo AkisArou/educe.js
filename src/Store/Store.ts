@@ -10,9 +10,11 @@ export abstract class Store<T extends object> {
         return this.state;
     }
 
-    public requestEffect(): void {}
+    public requestEffect(): void {
+    }
 
-    public requestCleanup(): void {}
+    public requestCleanup(): void {
+    }
 
     /** @description Used for state property deletion in dynamic state properties.*/
     protected deletePropFromState(propName: keyof T): void {
@@ -60,6 +62,6 @@ export abstract class Store<T extends object> {
         storeFound.refs--;
         console.log({...Store.stores}, {...storeFound}, "Store.stores removeRefDelete POST --")
         if (!storeFound.refs) delete Store.stores[StoreConstructor.name];
-        console.log(Store.stores, "Store.stores removeRefDelete DELETE")
+        console.log({...Store.stores}, {...storeFound}, "Store.stores removeRefDelete DELETE")
     }
 }
