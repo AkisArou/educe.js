@@ -1,5 +1,3 @@
-import { Store } from "../Store/Store";
-declare type StoreCls<S extends object> = (new () => Store<S>);
-export declare function StatePersisted<S extends object>(target: StoreCls<S>): any;
-export {};
+import { GenericStoreClass } from "../types";
+export declare function StatePersisted(databaseVersion?: number): <S extends object>(target: GenericStoreClass) => any;
 //# sourceMappingURL=index.d.ts.map
