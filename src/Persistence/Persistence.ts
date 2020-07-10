@@ -6,7 +6,7 @@ export const storageIdentifierGenerator = (dbVer: number, cls: GenericStoreClass
 
 
 export class Persistence {
-    public static readonly Persist = StatePersisted;
+    public static readonly Persisted = StatePersisted;
 
     /* Helpers */
     public static clearStorePersistedState(dbVer: number, cls: GenericStoreClass) {
