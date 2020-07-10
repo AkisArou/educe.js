@@ -3,7 +3,7 @@ import {Store} from "../Store/Store";
 type StoreCls<S extends object> = (new () => Store<S>);
 
 export function StatePersisted<S extends object>(target: StoreCls<S>) {
-    const identifier = "react-store|" + target.constructor.name;
+    const identifier = "react-store|" + target.name;
 
     return new Proxy(target, {
         construct(target: any, args: any[]) {
