@@ -3,7 +3,7 @@ import {GenericStoreClass} from "../types";
 
 export function StatePersisted(databaseVersion: number = 0) {
     return function <S extends object>(target: GenericStoreClass) {
-        // Class returns proxied
+        // Class returns as proxied
         return new Proxy(target, {
             construct(target: any, args: any[]) {
                 const storeInstance = new target(...args);
@@ -21,8 +21,8 @@ export function StatePersisted(databaseVersion: number = 0) {
                 let stateRef = !!persistedState ? JSON.parse(persistedState) : storeInstance.state;
 
                 // Define getter-setter for "state" property.
-                // Getter just for getting state
-                // Setter persists state
+                // Getter: just for getting state
+                // Setter: persists state
                 Object.defineProperty(storeInstance, "state", {
                     get() {
                         return stateRef;

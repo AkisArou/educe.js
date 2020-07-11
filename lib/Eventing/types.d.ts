@@ -1,8 +1,8 @@
 import React, { SetStateAction } from "react";
-import { ENTIRE_STORE_LISTENERS } from "./ENTIRE_STORE_LISTENERS";
+import { ENTIRE_STATE } from "../Eventing/ENTIRE_STATE";
 export declare type StateSetter<V> = React.Dispatch<SetStateAction<V>>;
 export declare type SymbolicSetters<T> = {
-    [ENTIRE_STORE_LISTENERS]: Set<StateSetter<T>>;
+    [ENTIRE_STATE]: Set<StateSetter<T>>;
 };
 export declare type DynamicKeySetters<T> = {
     [p in keyof T]: Set<StateSetter<T>>;
