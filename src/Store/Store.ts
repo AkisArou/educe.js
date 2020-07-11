@@ -7,8 +7,8 @@ export abstract class Store<T extends object> {
 
     // For now unlimited state saving in history...
     // Check for setting up a LIMIT.
-    constructor(needsHistory?: boolean) {
-        if (needsHistory) this.history = new History<T>();
+    constructor(needsHistory?: boolean, historyLimit: number = Infinity) {
+        if (needsHistory) this.history = new History<T>(historyLimit);
     }
 
     /* Eventing props */

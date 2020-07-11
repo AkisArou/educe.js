@@ -1,7 +1,7 @@
 import { ENTIRE_STATE } from "../Eventing/ENTIRE_STATE";
 export declare abstract class Store<T extends object> {
     protected abstract state: T;
-    constructor(needsHistory?: boolean);
+    constructor(needsHistory?: boolean, historyLimit?: number);
     private readonly eventing;
     readonly subscribe: <K extends keyof T>(subProps: typeof ENTIRE_STATE | K | K[], listener: (state: T) => any) => void;
     readonly unsubscribe: <K extends keyof T>(unsubscribableProps: Set<typeof ENTIRE_STATE | K | K[]>, listener: (state: T) => any) => void;

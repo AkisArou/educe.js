@@ -5,6 +5,11 @@ export class History<T extends object> {
     private states: T[] = [];
     private currentIdx = 0;
 
+    constructor(
+        private readonly historyLimit: number
+    ) {
+    }
+
     public previousState<K extends keyof T>(prop: K | typeof ENTIRE_STATE) {
         if (!this.states[this.currentIdx - 1]) return;
         this.currentIdx -= 1;
@@ -30,6 +35,7 @@ export class History<T extends object> {
     }
 
     public pushState(state: T): void {
+        if (this.states.length >= this.historyLimit) this.states.shift();
         this.states.push(state);
         this.currentIdx = this.states.length - 1;
     }
