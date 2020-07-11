@@ -1,11 +1,10 @@
-/// <reference types="react" />
 import { ENTIRE_STATE } from "../Eventing/ENTIRE_STATE";
 export declare abstract class Store<T extends object> {
     protected abstract state: T;
-    protected constructor(needsHistory?: boolean);
+    constructor(needsHistory?: boolean);
     private readonly eventing;
-    readonly subscribe: <K extends keyof T>(subProps: typeof ENTIRE_STATE | K | K[], listener: import("react").Dispatch<import("react").SetStateAction<T>>) => void;
-    readonly unsubscribe: <K extends keyof T>(unsubscribableProps: Set<typeof ENTIRE_STATE | K | K[]>, listener: import("react").Dispatch<import("react").SetStateAction<T>>) => void;
+    readonly subscribe: <K extends keyof T>(subProps: typeof ENTIRE_STATE | K | K[], listener: (state: T) => any) => void;
+    readonly unsubscribe: <K extends keyof T>(unsubscribableProps: Set<typeof ENTIRE_STATE | K | K[]>, listener: (state: T) => any) => void;
     private readonly history?;
     private hasSavedFirstState;
     get immutableState(): T;

@@ -1,7 +1,11 @@
-import React, {SetStateAction} from "react";
+// import React, {SetStateAction} from "react";
 import {ENTIRE_STATE} from "../Eventing/ENTIRE_STATE";
 
-export type StateSetter<V> = React.Dispatch<SetStateAction<V>>;
+// type ReactStateReceiver<T> = React.Dispatch<SetStateAction<T>>;
+type StateReceiverFunction<T> = (state: T) => any;
+export type StateSetter<V> = StateReceiverFunction<V>;
+    // | ReactStateReceiver<V>
+
 
 export type SymbolicSetters<T> = {
     [ENTIRE_STATE]: Set<StateSetter<T>>;

@@ -1,4 +1,3 @@
-import React, {SetStateAction} from "react";
 import {ENTIRE_STATE} from "../Eventing/ENTIRE_STATE";
 import {IStateSetters, StateSetter} from "./types";
 
