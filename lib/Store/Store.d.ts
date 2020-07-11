@@ -19,6 +19,7 @@ export declare abstract class Store<T extends object> {
     protected nextState<K extends keyof T>(prop?: K | typeof ENTIRE_STATE): boolean;
     protected stateAt<K extends keyof T>(idx: number, prop?: K | typeof ENTIRE_STATE): boolean;
     protected clearStateHistory(): void;
+    protected queryPreviousState(fn: (state: T) => boolean): boolean;
     /**************
      * @statics
      * Dynamic store generation and removal by constructor arguments.

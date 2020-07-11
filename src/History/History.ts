@@ -10,6 +10,13 @@ export class History<T extends object> {
     ) {
     }
 
+
+    public query(fn: (state: T) => boolean): T | undefined {
+        for(const state of this.states)
+            if(fn(state)) return state;
+    }
+
+
     public previousState<K extends keyof T>(prop: K | typeof ENTIRE_STATE) {
         if (!this.states[this.currentIdx - 1]) return;
         this.currentIdx -= 1;

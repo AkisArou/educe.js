@@ -30,9 +30,11 @@ export abstract class Store<T extends object> {
 
 
     /* Lifecycle methods */
-    public requestEffect(): void {}
+    public requestEffect(): void {
+    }
 
-    public requestCleanup(): void {}
+    public requestCleanup(): void {
+    }
 
 
     /* State manipulation methods */
@@ -72,6 +74,7 @@ export abstract class Store<T extends object> {
 
 
     /* History methods */
+
     // returns if has history
     private onHistoryChangeCommit<K extends keyof T>(newState: T | Partial<T> | undefined): boolean {
         if (!newState) return false;
@@ -97,6 +100,10 @@ export abstract class Store<T extends object> {
 
     protected clearStateHistory(): void {
         this.history?.clearStateHistory();
+    }
+
+    protected queryPreviousState(fn: (state: T) => boolean) {
+        return this.onHistoryChangeCommit(this.history?.query(fn));
     }
 
 
