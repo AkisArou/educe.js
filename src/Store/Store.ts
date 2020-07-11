@@ -5,6 +5,8 @@ import {ENTIRE_STATE} from "../Eventing/ENTIRE_STATE";
 export abstract class Store<T extends object> {
     protected abstract state: T;
 
+    // For now unlimited state saving in history...
+    // Check for setting up a LIMIT.
     protected constructor(needsHistory?: boolean) {
         if (needsHistory) this.history = new History<T>();
     }
@@ -31,7 +33,6 @@ export abstract class Store<T extends object> {
     public requestEffect(): void {}
 
     public requestCleanup(): void {}
-
 
 
     /* State manipulation methods */
@@ -71,24 +72,27 @@ export abstract class Store<T extends object> {
 
 
     /* History methods */
-    private onHistoryChangeCommit<K extends keyof T>(newState: T | Partial<T> | undefined): void {
-        if (!newState) return;
+    // returns if has history
+    private onHistoryChangeCommit<K extends keyof T>(newState: T | Partial<T> | undefined): boolean {
+        if (!newState) return false;
         this.state = {...this.state, ...newState};
 
         for (let key of Object.keys(newState))
             this.eventing.trigger(key as K, this.state);
+
+        return true;
     }
 
-    protected previousState<K extends keyof T>(prop: K | typeof ENTIRE_STATE = ENTIRE_STATE) {
-        this.onHistoryChangeCommit(this.history?.previousState(prop));
+    protected previousState<K extends keyof T>(prop: K | typeof ENTIRE_STATE = ENTIRE_STATE): boolean {
+        return this.onHistoryChangeCommit(this.history?.previousState(prop));
     };
 
-    protected nextState<K extends keyof T>(prop: K | typeof ENTIRE_STATE = ENTIRE_STATE) {
-        this.onHistoryChangeCommit(this.history?.nextState(prop));
+    protected nextState<K extends keyof T>(prop: K | typeof ENTIRE_STATE = ENTIRE_STATE): boolean {
+        return this.onHistoryChangeCommit(this.history?.nextState(prop));
     }
 
-    protected stateAt<K extends keyof T>(idx: number, prop: K | typeof ENTIRE_STATE = ENTIRE_STATE) {
-        this.onHistoryChangeCommit(this.history?.stateAt(idx, prop));
+    protected stateAt<K extends keyof T>(idx: number, prop: K | typeof ENTIRE_STATE = ENTIRE_STATE): boolean {
+        return this.onHistoryChangeCommit(this.history?.stateAt(idx, prop));
     }
 
     protected clearStateHistory(): void {

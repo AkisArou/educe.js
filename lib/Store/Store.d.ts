@@ -16,9 +16,9 @@ export declare abstract class Store<T extends object> {
     protected setState<K extends keyof T>(updateProps: Partial<T>): void;
     protected resetState<K extends keyof T>(initialState: T): void;
     private onHistoryChangeCommit;
-    protected previousState<K extends keyof T>(prop?: K | typeof ENTIRE_STATE): void;
-    protected nextState<K extends keyof T>(prop?: K | typeof ENTIRE_STATE): void;
-    protected stateAt<K extends keyof T>(idx: number, prop?: K | typeof ENTIRE_STATE): void;
+    protected previousState<K extends keyof T>(prop?: K | typeof ENTIRE_STATE): boolean;
+    protected nextState<K extends keyof T>(prop?: K | typeof ENTIRE_STATE): boolean;
+    protected stateAt<K extends keyof T>(idx: number, prop?: K | typeof ENTIRE_STATE): boolean;
     protected clearStateHistory(): void;
     /**************
      * @statics

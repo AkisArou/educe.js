@@ -1,5 +1,6 @@
 import {ENTIRE_STATE} from "../Eventing/ENTIRE_STATE";
 
+// For now unlimited state saving... Check for setting up a LIMIT.
 export class History<T extends object> {
     private states: T[] = [];
     private currentIdx = 0;
