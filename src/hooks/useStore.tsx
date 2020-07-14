@@ -1,7 +1,6 @@
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {Store} from "../Store/Store";
 import {ENTIRE_STATE} from "../Eventing/ENTIRE_STATE";
-import {GenericStoreClass} from "../types";
 
 type OmittedProps =
     "state"
@@ -13,20 +12,20 @@ export type SubProps<IStoreType> =
     | typeof ENTIRE_STATE
     | null;
 
-function useStore<S extends object, StoreClass extends GenericStoreClass<S>>(
-    store: StoreClass,
+function useStore<S extends object, StoreClass extends new (...args: any[]) => Store<S>>(
+    store: (new () => Store<S>) | StoreClass,
     dynamicProps?: SubProps<S>,
     withEffects?: boolean,
     listen?: boolean
 ): readonly [S, Omit<InstanceType<StoreClass>, OmittedProps>];
-function useStore<S extends object, StoreClass extends GenericStoreClass<S>>(
+function useStore<S extends object, StoreClass extends new (...args: any[]) => Store<S>>(
     store: Store<S>,
     dynamicProps?: SubProps<S>,
     withEffects?: boolean,
     listen?: boolean
 ): S
-function useStore<S extends object, StoreClass extends GenericStoreClass<S>>(
-    store: Store<S> | StoreClass,
+function useStore<S extends object, StoreClass extends new (...args: any[]) => Store<S>>(
+    store: Store<S> | (new () => Store<S>) | StoreClass,
     dynamicProps?: SubProps<S>,
     withEffects?: boolean,
     listen: boolean = true
