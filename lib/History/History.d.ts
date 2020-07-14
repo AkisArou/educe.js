@@ -1,4 +1,4 @@
-import { ENTIRE_STATE } from "../Eventing/ENTIRE_STATE";
+import { ENTIRE_STATE } from "@Eventing/ENTIRE_STATE";
 export declare class History<T extends object> {
     private readonly historyLimit;
     private states;

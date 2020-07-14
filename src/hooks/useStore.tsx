@@ -1,8 +1,11 @@
-import {useEffect, useMemo, useRef, useState} from "react";
-import {Store} from "../Store/Store";
-import {ENTIRE_STATE} from "../Eventing/ENTIRE_STATE";
+import {useEffect, useRef, useState} from "react";
+import {Store} from "@Store/Store";
+import {ENTIRE_STATE} from "@Eventing/ENTIRE_STATE";
+import {GenericStoreClass} from "@types_index";
 
-type OmittedProps = | "state" | "requestCleanup" | "requestEffect" | "immutableState" | "subscribe" | "unsubscribe";
+type OmittedProps =
+    "state"
+    & Pick<Store<any>, "requestCleanup" | "requestEffect" | "immutableState" | "subscribe" | "unsubscribe">;
 
 export type SubProps<IStoreType> =
     | (keyof IStoreType)[]
@@ -10,24 +13,24 @@ export type SubProps<IStoreType> =
     | typeof ENTIRE_STATE
     | null;
 
-function useStore<S extends object, StoreClass extends new (...args: any[]) => Store<S>>(
-    store: (new () => Store<S>) | StoreClass,
+function useStore<S extends object>(
+    store: GenericStoreClass<S>,
     dynamicProps?: SubProps<S>,
     withEffects?: boolean,
     listen?: boolean
-): readonly [S, Omit<InstanceType<StoreClass>, OmittedProps>];
-function useStore<S extends object, StoreClass extends new (...args: any[]) => Store<S>>(
+): readonly [S, Omit<InstanceType<GenericStoreClass<S>>, OmittedProps>];
+function useStore<S extends object>(
     store: Store<S>,
     dynamicProps?: SubProps<S>,
     withEffects?: boolean,
     listen?: boolean
 ): S
-function useStore<S extends object, StoreClass extends new (...args: any[]) => Store<S>>(
-    store: Store<S> | (new () => Store<S>) | StoreClass,
+function useStore<S extends object>(
+    store: Store<S> | GenericStoreClass<S>,
     dynamicProps?: SubProps<S>,
     withEffects?: boolean,
     listen: boolean = true
-): readonly [S, Omit<InstanceType<StoreClass>, OmittedProps>] | S {
+): readonly [S, Omit<InstanceType<GenericStoreClass<S>>, OmittedProps>] | S {
     const [actualStore] = useState<Store<S>>(() => typeof store === "function" ? Store.getAddRef(store) : store)
     const [data, setState] = useState<S>(() => actualStore.immutableState);
     const {current: memoizedUnsubscribableProps} = useRef(new Set<keyof S | typeof ENTIRE_STATE>());
@@ -62,8 +65,8 @@ function useStore<S extends object, StoreClass extends new (...args: any[]) => S
 
 
     return typeof store === "function"
-        ? [new Proxy(data, handler), actualStore as InstanceType<StoreClass> as Omit<InstanceType<StoreClass>, OmittedProps>] as const
-        : new Proxy(data, handler);
+        ? [new Proxy(data, handler), actualStore as Omit<InstanceType<GenericStoreClass<S>>, OmittedProps>] as const
+        :  new Proxy(data, handler);
 }
 
 export {useStore};

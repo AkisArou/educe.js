@@ -1,14 +1,19 @@
-import Eventing from "../Eventing/Eventing";
-import {History} from "../History/History";
-import {ENTIRE_STATE} from "../Eventing/ENTIRE_STATE";
+import {ENTIRE_STATE} from "@Eventing/ENTIRE_STATE";
+import Eventing from "@Eventing/Eventing";
+import {History} from "@History/History";
+
+interface HistoryConfig {
+    readonly enableHistory: boolean;
+    readonly historyLimit: number;
+}
+
 
 export abstract class Store<T extends object> {
     protected abstract state: T;
 
-    // For now unlimited state saving in history...
-    // Check for setting up a LIMIT.
-    constructor(needsHistory?: boolean, historyLimit: number = Infinity) {
-        if (needsHistory) this.history = new History<T>(historyLimit);
+    constructor(historyConfig?: HistoryConfig) {
+        if (historyConfig?.enableHistory)
+            this.history = new History<T>(historyConfig.historyLimit);
     }
 
     /* Eventing props */
@@ -30,11 +35,9 @@ export abstract class Store<T extends object> {
 
 
     /* Lifecycle methods */
-    public requestEffect(): void {
-    }
+    public requestEffect(): void {}
 
-    public requestCleanup(): void {
-    }
+    public requestCleanup(): void {}
 
 
     /* State manipulation methods */
@@ -98,12 +101,12 @@ export abstract class Store<T extends object> {
         return this.onHistoryChangeCommit(this.history?.stateAt(idx, prop));
     }
 
-    protected clearStateHistory(): void {
-        this.history?.clearStateHistory();
+    protected queryPreviousState(fn: (state: T) => boolean): boolean {
+        return this.onHistoryChangeCommit(this.history?.query(fn));
     }
 
-    protected queryPreviousState(fn: (state: T) => boolean) {
-        return this.onHistoryChangeCommit(this.history?.query(fn));
+    protected clearStateHistory(): void {
+        this.history?.clearStateHistory();
     }
 
 

@@ -1,3 +1,9 @@
-import { GenericStoreClass } from "../types";
-export declare function StatePersisted(databaseVersion?: number): <S extends object>(target: GenericStoreClass) => any;
+import { GenericStoreClass } from "@types_/";
+import { PersistenceTransformers } from "@Persistence/types";
+interface StatePersistedConfig<T extends object> {
+    readonly databaseVersion?: number;
+    readonly transformers?: PersistenceTransformers<T>;
+}
+export declare function StatePersisted<T extends object>(config?: StatePersistedConfig<T>): <S extends object>(target: GenericStoreClass<S>) => any;
+export {};
 //# sourceMappingURL=index.d.ts.map

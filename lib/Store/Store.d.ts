@@ -1,7 +1,11 @@
-import { ENTIRE_STATE } from "../Eventing/ENTIRE_STATE";
+import { ENTIRE_STATE } from "@Eventing/ENTIRE_STATE";
+interface HistoryConfig {
+    readonly enableHistory: boolean;
+    readonly historyLimit: number;
+}
 export declare abstract class Store<T extends object> {
     protected abstract state: T;
-    constructor(needsHistory?: boolean, historyLimit?: number);
+    constructor(historyConfig?: HistoryConfig);
     private readonly eventing;
     readonly subscribe: <K extends keyof T>(subProps: typeof ENTIRE_STATE | K | K[], listener: (state: T) => any) => void;
     readonly unsubscribe: <K extends keyof T>(unsubscribableProps: Set<typeof ENTIRE_STATE | K | K[]>, listener: (state: T) => any) => void;
@@ -18,8 +22,8 @@ export declare abstract class Store<T extends object> {
     protected previousState<K extends keyof T>(prop?: K | typeof ENTIRE_STATE): boolean;
     protected nextState<K extends keyof T>(prop?: K | typeof ENTIRE_STATE): boolean;
     protected stateAt<K extends keyof T>(idx: number, prop?: K | typeof ENTIRE_STATE): boolean;
-    protected clearStateHistory(): void;
     protected queryPreviousState(fn: (state: T) => boolean): boolean;
+    protected clearStateHistory(): void;
     /**************
      * @statics
      * Dynamic store generation and removal by constructor arguments.
@@ -29,4 +33,5 @@ export declare abstract class Store<T extends object> {
     static getAddRef<S extends Store<any>>(StoreConstructor: new (...args: any[]) => S): S;
     static removeRefDelete<S extends Store<any>>(StoreConstructor: new (...args: any[]) => S): void;
 }
+export {};
 //# sourceMappingURL=Store.d.ts.map

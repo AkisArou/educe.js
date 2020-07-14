@@ -1,37 +1,55 @@
-import {storageIdentifierGenerator} from "../Persistence/Persistence";
-import {GenericStoreClass} from "../types";
+import {storageIdentifierGenerator} from "@Persistence/Persistence";
+import {GenericStoreClass} from "@types_/";
+import {PersistenceTransformers} from "@Persistence/types";
+import {PersistenceConst} from "@Persistence/constants";
 
-export function StatePersisted(databaseVersion: number = 0) {
-    return function <S extends object>(target: GenericStoreClass) {
+
+interface StatePersistedConfig<T extends object> {
+    readonly databaseVersion?: number;
+    readonly transformers?: PersistenceTransformers<T>;
+}
+
+export function StatePersisted<T extends object>(config?: StatePersistedConfig<T>) {
+    return function <S extends object>(target: GenericStoreClass<S>) {
         // Class returns as proxied
         return new Proxy(target, {
-            construct(target: any, args: any[]) {
-                const storeInstance = new target(...args);
+            // StoreCls left any, for accessing .state property
+            construct(StoreCls: any, args: any[]) {
+                // Default initial database version = 0
+                const databaseVersion = config?.databaseVersion ?? 0;
+                const transformer = config?.transformers;
+                // Create instance
+                const storeInstance = new StoreCls(...args);
                 // Current identifier by databaseVersion
-                const identifier = storageIdentifierGenerator(databaseVersion, target);
+                const identifier = storageIdentifierGenerator(databaseVersion, StoreCls);
                 // Try get persistedState by identifier, and use it for later state persistence setting
                 const persistedState = localStorage.getItem(identifier);
 
                 // Try delete previous deprecated persisted state
                 if (!persistedState && databaseVersion > 0)
-                    localStorage.removeItem(storageIdentifierGenerator(databaseVersion - 1, target));
+                    localStorage.removeItem(storageIdentifierGenerator(databaseVersion - 1, StoreCls));
 
 
                 // Keep local state obj reference to be used in setter-getter
-                let stateRef = !!persistedState ? JSON.parse(persistedState) : storeInstance.state;
+                let stateRef: T = !!persistedState
+                    ? !!transformer ? transformer.onGet(JSON.parse(persistedState)) : JSON.parse(persistedState)
+                    : storeInstance.state;
 
                 // Define getter-setter for "state" property.
                 // Getter: just for getting state
                 // Setter: persists state
-                Object.defineProperty(storeInstance, "state", {
+                Object.defineProperty(storeInstance, PersistenceConst.statePropertyKey, {
                     get() {
                         return stateRef;
                     },
-                    set(v: any) {
+                    set(v: T) {
                         stateRef = v;
-                        localStorage.setItem(identifier, JSON.stringify(v));
+                        localStorage.setItem(identifier,
+                            !!transformer
+                                ? JSON.stringify(transformer.onSet(v))
+                                : JSON.stringify(v));
                     }
-                })
+                } as const);
 
                 return storeInstance;
             },
