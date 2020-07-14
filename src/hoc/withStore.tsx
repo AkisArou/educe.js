@@ -1,6 +1,6 @@
 import React from "react";
-import {useStore, SubProps} from "@hooks/useStore";
-import {Store} from "@Store/Store";
+import {useStore, SubProps} from "../hooks/useStore";
+import {Store} from "../Store/Store";
 
 export interface InjectedStoreProps<S> {
     storeData?: S;

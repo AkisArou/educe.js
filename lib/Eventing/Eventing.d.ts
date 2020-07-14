@@ -1,5 +1,5 @@
-import { ENTIRE_STATE } from "@Eventing/ENTIRE_STATE";
-import { IStateSetters } from "@Eventing/types";
+import { ENTIRE_STATE } from "../Eventing/ENTIRE_STATE";
+import { IStateSetters } from "../Eventing/types";
 export default class Eventing<T> {
     stateSetters: IStateSetters<T>;
     subscribe: <K extends keyof T>(subProps: typeof ENTIRE_STATE | K | K[], listener: (state: T) => any) => void;

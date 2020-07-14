@@ -1,6 +1,6 @@
-import { Store } from "@Store/Store";
-import { ENTIRE_STATE } from "@Eventing/ENTIRE_STATE";
-import { GenericStoreClass } from "@types_index";
+import { Store } from "../Store/Store";
+import { ENTIRE_STATE } from "../Eventing/ENTIRE_STATE";
+import { GenericStoreClass } from "../types";
 declare type OmittedProps = "state" & Pick<Store<any>, "requestCleanup" | "requestEffect" | "immutableState" | "subscribe" | "unsubscribe">;
 export declare type SubProps<IStoreType> = (keyof IStoreType)[] | keyof IStoreType | typeof ENTIRE_STATE | null;
 declare function useStore<S extends object, StoreClass extends GenericStoreClass<S>>(store: StoreClass, dynamicProps?: SubProps<S>, withEffects?: boolean, listen?: boolean): readonly [S, Omit<InstanceType<StoreClass>, OmittedProps>];

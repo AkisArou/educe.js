@@ -1,5 +1,5 @@
 import React from "react";
-import { Store } from "@Store/Store";
+import { Store } from "../Store/Store";
 export interface InjectedStoreProps<S> {
     storeData?: S;
 }

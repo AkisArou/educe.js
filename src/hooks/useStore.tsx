@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useRef, useState} from "react";
-import {Store} from "@Store/Store";
-import {ENTIRE_STATE} from "@Eventing/ENTIRE_STATE";
-import {GenericStoreClass} from "@types_index";
+import {Store} from "../Store/Store";
+import {ENTIRE_STATE} from "../Eventing/ENTIRE_STATE";
+import {GenericStoreClass} from "../types";
 
 type OmittedProps =
     "state"

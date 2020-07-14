@@ -1,7 +1,7 @@
-import {storageIdentifierGenerator} from "@Persistence/Persistence";
-import {GenericStoreClass} from "@types_/";
-import {PersistenceTransformers} from "@Persistence/types";
-import {PersistenceConst} from "@Persistence/constants";
+import {storageIdentifierGenerator} from "../Persistence/Persistence";
+import {GenericStoreClass} from "../types";
+import {PersistenceTransformers} from "../Persistence/types";
+import {PersistenceConst} from "../Persistence/constants";
 
 
 interface StatePersistedConfig<T extends object> {

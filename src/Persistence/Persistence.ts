@@ -1,7 +1,7 @@
-import {StatePersisted} from "@decorators/index";
-import {GenericStoreClass} from "@types_/";
-import {PersistenceTransformers, PersistenceTransformGet, PersistenceTransformSet} from "@Persistence/types";
-import {PersistenceConst} from "@Persistence/constants";
+import {StatePersisted} from "../decorators/index";
+import {GenericStoreClass} from "../types";
+import {PersistenceTransformers, PersistenceTransformGet, PersistenceTransformSet} from "../Persistence/types";
+import {PersistenceConst} from "../Persistence/constants";
 
 export const storageIdentifierGenerator = <T extends object>(dbVer: number, cls: GenericStoreClass<T>) =>
     PersistenceConst.libName + cls.name + PersistenceConst.dbVersion + dbVer;

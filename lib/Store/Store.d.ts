@@ -1,4 +1,4 @@
-import { ENTIRE_STATE } from "@Eventing/ENTIRE_STATE";
+import { ENTIRE_STATE } from "../Eventing/ENTIRE_STATE";
 interface HistoryConfig {
     readonly enableHistory: boolean;
     readonly historyLimit: number;

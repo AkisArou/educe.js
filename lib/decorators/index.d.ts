@@ -1,5 +1,5 @@
-import { GenericStoreClass } from "@types_/";
-import { PersistenceTransformers } from "@Persistence/types";
+import { GenericStoreClass } from "../types";
+import { PersistenceTransformers } from "../Persistence/types";
 interface StatePersistedConfig<T extends object> {
     readonly databaseVersion?: number;
     readonly transformers?: PersistenceTransformers<T>;

@@ -1,6 +1,6 @@
-import {ENTIRE_STATE} from "@Eventing/ENTIRE_STATE";
-import Eventing from "@Eventing/Eventing";
-import {History} from "@History/History";
+import {ENTIRE_STATE} from "../Eventing/ENTIRE_STATE";
+import Eventing from "../Eventing/Eventing";
+import {History} from "../History/History";
 
 interface HistoryConfig {
     readonly enableHistory: boolean;

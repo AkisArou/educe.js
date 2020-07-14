@@ -1,5 +1,5 @@
-import {ENTIRE_STATE} from "@Eventing/ENTIRE_STATE";
-import {IStateSetters, StateSetter} from "@Eventing/types";
+import {ENTIRE_STATE} from "../Eventing/ENTIRE_STATE";
+import {IStateSetters, StateSetter} from "../Eventing/types";
 
 export default class Eventing<T> {
     public stateSetters: IStateSetters<T> = {} as IStateSetters<T>;
