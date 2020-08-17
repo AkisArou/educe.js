@@ -30,14 +30,14 @@ function useStore<S extends object, StoreClass extends new (...args: any[]) => S
     withEffects?: boolean,
     listen: boolean = true
 ): readonly [S, Omit<InstanceType<StoreClass>, OmittedProps>] | S {
-    const [actualStore] = useState<Store<S>>(() => typeof store === "function" ? Store.getAddRef(store) : store)
+    const [actualStore] = useState<Store<S>>(() => typeof store === "function" ? Store.getAddRef(store) : store);
     const [data, setState] = useState<S>(() => actualStore.immutableState);
     const {current: memoizedUnsubscribableProps} = useRef(new Set<keyof S | typeof ENTIRE_STATE>());
 
     const handler = {
         get(target: S, prop: keyof S) {
             if (listen && !memoizedUnsubscribableProps.has(prop) && !memoizedUnsubscribableProps.has(ENTIRE_STATE)) {
-                actualStore.subscribe(prop, setState);
+                actualStore.subscribe(setState, prop);
                 memoizedUnsubscribableProps.add(prop);
             }
             return data[prop];
@@ -46,7 +46,7 @@ function useStore<S extends object, StoreClass extends new (...args: any[]) => S
 
     useEffect(() => {
         if (dynamicProps && listen) {
-            actualStore.subscribe(dynamicProps, setState);
+            actualStore.subscribe(setState, dynamicProps);
 
             if (Array.isArray(dynamicProps))
                 dynamicProps.forEach(prop => memoizedUnsubscribableProps.add(prop));
@@ -56,7 +56,7 @@ function useStore<S extends object, StoreClass extends new (...args: any[]) => S
         withEffects && actualStore.requestEffect();
 
         return () => {
-            listen && actualStore.unsubscribe(memoizedUnsubscribableProps, setState);
+            listen && actualStore.unsubscribe(setState, memoizedUnsubscribableProps);
             withEffects && actualStore.requestCleanup();
             if (typeof store === "function") Store.removeRefDelete(store);
         };

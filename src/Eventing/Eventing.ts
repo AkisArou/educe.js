@@ -4,9 +4,9 @@ import {IStateSetters, StateSetter} from "../Eventing/types";
 export default class Eventing<T> {
     public stateSetters: IStateSetters<T> = {} as IStateSetters<T>;
 
-    public subscribe = <K extends keyof T>(subProps: K | K[] | typeof ENTIRE_STATE, listener: StateSetter<T>): void => {
+    public subscribe = <K extends keyof T>(listener: StateSetter<T>, subProps: K | K[] | typeof ENTIRE_STATE): void => {
         if (subProps instanceof Array)
-            subProps.forEach(port => this.subscribe(port, listener));
+            subProps.forEach(port => this.subscribe(listener, port));
         else {
             const portionListeners = this.stateSetters[subProps as K] || new Set<StateSetter<T>>();
             portionListeners.add(listener);
@@ -15,7 +15,7 @@ export default class Eventing<T> {
     };
 
 
-    public unsubscribe = <K extends keyof T>(unsubscribableProps: Set<K | K[] | typeof ENTIRE_STATE>, listener: StateSetter<T>): void => {
+    public unsubscribe = <K extends keyof T>(listener: StateSetter<T>, unsubscribableProps: Set<K | K[] | typeof ENTIRE_STATE>,): void => {
         unsubscribableProps.forEach(prop => {
             if (prop instanceof Array)
                 prop.forEach(p => this.stateSetters[p].delete(listener));
