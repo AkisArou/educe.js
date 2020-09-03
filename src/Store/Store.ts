@@ -1,7 +1,7 @@
 import {ENTIRE_STATE} from "../constants/ENTIRE_STATE";
 import Eventing from "../Eventing/Eventing";
 import {History} from "../History/History";
-import {StoreApproved} from "../types";
+import {StoreApproved, StoreConstructor, StoreStatic} from "../types";
 import {Managed} from "../decorators/Managed";
 
 interface HistoryConfig {
@@ -126,9 +126,10 @@ export abstract class Store<T extends object> {
 
     private static stores: Map<symbol, { store: Store<any>; refs: number }> = new Map();
 
-    public static get<S extends object>(StoreConstructor: StoreApproved<S>): Store<S> | undefined {
-        const storeFound = Store.stores.get(StoreConstructor._storeIdentifier);
-        return storeFound?.store;
+    public static get<S extends object, StoreClass extends new (...args: any[]) => Store<S>>(StoreConstructor: StoreApproved<S> | StoreClass | (new () => Store<S>)): InstanceType<StoreClass> {
+        const storeFound = Store.stores.get((StoreConstructor as StoreStatic)._storeIdentifier) as { store: InstanceType<StoreClass>; refs: number } | undefined;
+        if(!storeFound) throw new Error("Store used before its initialization. Check component hierarchy. Must be in boundaries of useStore which uses @Store.Manage decorator.");
+        return storeFound.store;
     }
 
     public static getAddRef<S extends object>(StoreConstructor: StoreApproved<S>): Store<S> {

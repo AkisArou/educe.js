@@ -3,9 +3,7 @@ import {Store} from "../Store/Store";
 import {ENTIRE_STATE} from "../constants/ENTIRE_STATE";
 import {StoreApproved} from "../types";
 
-type OmittedProps =
-    "state"
-    & Pick<Store<any>, "requestCleanup" | "requestEffect" | "immutableState" | "subscribe" | "unsubscribe">;
+type OmittedProps = "state" | keyof Pick<Store<any>, "requestCleanup" | "requestEffect" | "immutableState" | "subscribe" | "unsubscribe">;
 
 export type SubProps<IStoreType> =
     | (keyof IStoreType)[]
