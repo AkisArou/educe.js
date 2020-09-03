@@ -1,5 +1,5 @@
 import {storageIdentifierGenerator} from "../Persistence/Persistence";
-import {GenericStoreClass} from "../types";
+import {StoreConstructor} from "../types";
 import {PersistenceTransformers} from "../Persistence/types";
 import {PersistenceConst} from "../Persistence/constants";
 
@@ -10,7 +10,7 @@ interface StatePersistedConfig<T extends object> {
 }
 
 export function StatePersisted<T extends object>(config?: StatePersistedConfig<T>) {
-    return function <S extends object>(target: GenericStoreClass<S>) {
+    return function <S extends object>(target: StoreConstructor<S>) {
         // Class returns as proxied
         return new Proxy(target, {
             // StoreCls left any, for accessing .state property

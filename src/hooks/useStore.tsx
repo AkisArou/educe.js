@@ -1,6 +1,7 @@
 import {useEffect, useRef, useState} from "react";
 import {Store} from "../Store/Store";
-import {ENTIRE_STATE} from "../Eventing/ENTIRE_STATE";
+import {ENTIRE_STATE} from "../constants/ENTIRE_STATE";
+import {StoreApproved} from "../types";
 
 type OmittedProps =
     "state"
@@ -30,7 +31,7 @@ function useStore<S extends object, StoreClass extends new (...args: any[]) => S
     withEffects?: boolean,
     listen: boolean = true
 ): readonly [S, Omit<InstanceType<StoreClass>, OmittedProps>] | S {
-    const [actualStore] = useState<Store<S>>(() => typeof store === "function" ? Store.getAddRef(store) : store);
+    const [actualStore] = useState<Store<S>>(() => typeof store === "function" ? Store.getAddRef(store as StoreApproved<S>) : store);
     const [data, setState] = useState<S>(() => actualStore.immutableState);
     const {current: memoizedUnsubscribableProps} = useRef(new Set<keyof S | typeof ENTIRE_STATE>());
 
@@ -58,7 +59,7 @@ function useStore<S extends object, StoreClass extends new (...args: any[]) => S
         return () => {
             listen && actualStore.unsubscribe(setState, memoizedUnsubscribableProps);
             withEffects && actualStore.requestCleanup();
-            if (typeof store === "function") Store.removeRefDelete(store);
+            if (typeof store === "function") Store.removeRefDelete(store as StoreApproved<S>);
         };
     }, [withEffects, listen]);
 
@@ -67,5 +68,6 @@ function useStore<S extends object, StoreClass extends new (...args: any[]) => S
         ? [new Proxy(data, handler), actualStore as InstanceType<StoreClass> as Omit<InstanceType<StoreClass>, OmittedProps>] as const
         : new Proxy(data, handler);
 }
+
 
 export {useStore};

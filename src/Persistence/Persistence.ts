@@ -1,9 +1,9 @@
-import {StatePersisted} from "../decorators/index";
-import {GenericStoreClass} from "../types";
+import {StatePersisted} from "../decorators/StatePersisted";
+import {StoreConstructor} from "../types";
 import {PersistenceTransformers, PersistenceTransformGet, PersistenceTransformSet} from "../Persistence/types";
 import {PersistenceConst} from "../Persistence/constants";
 
-export const storageIdentifierGenerator = <T extends object>(dbVer: number, cls: GenericStoreClass<T>) =>
+export const storageIdentifierGenerator = <T extends object>(dbVer: number, cls: StoreConstructor<T>) =>
     PersistenceConst.libName + cls.name + PersistenceConst.dbVersion + dbVer;
 
 
@@ -15,7 +15,7 @@ export const storageIdentifierGenerator = <T extends object>(dbVer: number, cls:
 export class Persistence {
     public static readonly Persisted = StatePersisted;
 
-    public static clearStorePersistedState<T extends object>(dbVer: number, cls: GenericStoreClass<T>) {
+    public static clearStorePersistedState<T extends object>(dbVer: number, cls: StoreConstructor<T>) {
         localStorage.removeItem(storageIdentifierGenerator(dbVer, cls));
     }
 

@@ -1,4 +1,4 @@
-import { ENTIRE_STATE } from "../Eventing/ENTIRE_STATE";
+import { ENTIRE_STATE } from "../constants/ENTIRE_STATE";
 declare type StateReceiverFunction<T> = (state: T) => any;
 export declare type StateSetter<V> = StateReceiverFunction<V>;
 export declare type SymbolicSetters<T> = {

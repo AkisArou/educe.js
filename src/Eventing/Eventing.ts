@@ -1,4 +1,4 @@
-import {ENTIRE_STATE} from "../Eventing/ENTIRE_STATE";
+import {ENTIRE_STATE} from "../constants/ENTIRE_STATE";
 import {IStateSetters, StateSetter} from "../Eventing/types";
 
 export default class Eventing<T> {

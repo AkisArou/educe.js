@@ -1,14 +1,19 @@
-import { ENTIRE_STATE } from "../Eventing/ENTIRE_STATE";
+import { ENTIRE_STATE } from "../constants/ENTIRE_STATE";
+import { StoreApproved } from "../types";
+import { Managed } from "../decorators/Managed";
 interface HistoryConfig {
     readonly enableHistory: boolean;
     readonly historyLimit: number;
 }
 export declare abstract class Store<T extends object> {
+    static readonly _storeIdentifier: unique symbol;
+    /*** @decorator* */
+    static readonly Managed: typeof Managed;
     protected abstract state: T;
     constructor(historyConfig?: HistoryConfig);
     private readonly eventing;
-    readonly subscribe: <K extends keyof T>(subProps: typeof ENTIRE_STATE | K | K[], listener: (state: T) => any) => void;
-    readonly unsubscribe: <K extends keyof T>(unsubscribableProps: Set<typeof ENTIRE_STATE | K | K[]>, listener: (state: T) => any) => void;
+    readonly subscribe: <K extends keyof T>(listener: (state: T) => any, subProps: typeof ENTIRE_STATE | K | K[]) => void;
+    readonly unsubscribe: <K extends keyof T>(listener: (state: T) => any, unsubscribableProps: Set<typeof ENTIRE_STATE | K | K[]>) => void;
     private readonly history?;
     private hasSavedFirstState;
     get immutableState(): T;
@@ -29,9 +34,9 @@ export declare abstract class Store<T extends object> {
      * Dynamic store generation and removal by constructor arguments.
      *********** */
     private static stores;
-    static get<S extends Store<any>>(StoreConstructor: new (...args: any[]) => S): S;
-    static getAddRef<S extends Store<any>>(StoreConstructor: new (...args: any[]) => S): S;
-    static removeRefDelete<S extends Store<any>>(StoreConstructor: new (...args: any[]) => S): void;
+    static get<S extends object>(StoreConstructor: StoreApproved<S>): Store<S> | undefined;
+    static getAddRef<S extends object>(StoreConstructor: StoreApproved<S>): Store<S>;
+    static removeRefDelete<S extends object>(StoreConstructor: StoreApproved<S>): void;
 }
 export {};
 //# sourceMappingURL=Store.d.ts.map
