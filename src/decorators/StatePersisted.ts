@@ -5,11 +5,12 @@ import {PersistenceConst} from "../Persistence/constants";
 
 
 interface StatePersistedConfig<T extends object> {
+    readonly databaseName: string;
     readonly databaseVersion?: number;
     readonly transformers?: PersistenceTransformers<T>;
 }
 
-export function StatePersisted<T extends object>(config?: StatePersistedConfig<T>) {
+export function StatePersisted<T extends object>(config: StatePersistedConfig<T>) {
     return function <S extends object>(target: StoreConstructor<S>) {
         // Class returns as proxied
         return new Proxy(target, {
@@ -21,13 +22,13 @@ export function StatePersisted<T extends object>(config?: StatePersistedConfig<T
                 // Create instance
                 const storeInstance = new StoreCls(...args);
                 // Current identifier by databaseVersion
-                const identifier = storageIdentifierGenerator(databaseVersion, StoreCls);
+                const identifier = storageIdentifierGenerator(config.databaseName, databaseVersion);
                 // Try get persistedState by identifier, and use it for later state persistence setting
                 const persistedState = localStorage.getItem(identifier);
 
                 // Try delete previous deprecated persisted state
                 if (!persistedState && databaseVersion > 0)
-                    localStorage.removeItem(storageIdentifierGenerator(databaseVersion - 1, StoreCls));
+                    localStorage.removeItem(storageIdentifierGenerator(config.databaseName, databaseVersion - 1));
 
 
                 // Keep local state obj reference to be used in setter-getter

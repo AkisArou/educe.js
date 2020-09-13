@@ -1,7 +1,7 @@
 import {ENTIRE_STATE} from "../constants/ENTIRE_STATE";
 import Eventing from "../Eventing/Eventing";
 import {History} from "../History/History";
-import {StoreApproved, StoreConstructor, StoreStatic} from "../types";
+import {StoreApproved, StoreStatic} from "../types";
 import {Managed} from "../decorators/Managed";
 
 interface HistoryConfig {
