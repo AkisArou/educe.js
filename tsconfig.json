@@ -77,7 +77,8 @@
       "dom",
       "es5",
       "scripthost",
-      "es2015"
+      "es2015",
+      "es2018.asynciterable"
     ]
   },
   "include": [

@@ -7,5 +7,16 @@ export interface PersistenceTransformers<T extends object> {
     readonly onGet: PersistenceTransformGet<T>;
     readonly onSet: PersistenceTransformSet<T>;
 }
+export interface ISyncDatabase {
+    getItem(key: string): string | null;
+    setItem(key: string, item: string): void;
+    removeItem(key: string): void;
+}
+export interface IAsyncDatabase {
+    getItem(key: string): Promise<string | null>;
+    setItem(key: string, item: string): Promise<void>;
+    removeItem(key: string): Promise<void>;
+}
+export declare type StoreDatabase = ISyncDatabase | IAsyncDatabase;
 export {};
 //# sourceMappingURL=types.d.ts.map
