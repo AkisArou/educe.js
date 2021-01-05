@@ -40,8 +40,12 @@ export function StatePersisted<T extends object>(config: StatePersistedConfig<T>
             // StoreCls left any, for accessing .state property
             construct(StoreCls: any, args: any[]) {
                 // Get database to work with
-                const database: StoreDatabase = config.database
+                const database: StoreDatabase =
+                    // If database from config, is under control
+                    config.database
+                    // if not, try get default database from Persistence
                     ?? Persistence.getDefaultDatabase()
+                    // then try fallback to localStorage for web
                     ?? localStorage;
 
                 // Default initial database version = 0
