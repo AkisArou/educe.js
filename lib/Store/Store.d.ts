@@ -30,7 +30,7 @@ export declare abstract class Store<T extends object> {
      * Dynamic store generation and removal by constructor arguments.
      *********** */
     private static stores;
-    static get<S extends object>(StoreConstructor: StoreApproved<S>): InstanceType<StoreApproved<S>>;
+    static get<S extends object, StoreClass extends new () => Store<S>>(StoreConstructor: StoreApproved<S> | StoreClass | (new () => Store<S>)): InstanceType<StoreClass>;
     static getAddRef<S extends object>(StoreConstructor: StoreApproved<S>): Store<S>;
     static removeRefDelete<S extends object>(StoreConstructor: StoreApproved<S>): void;
 }
