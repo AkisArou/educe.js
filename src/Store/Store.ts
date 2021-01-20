@@ -10,8 +10,6 @@ interface HistoryConfig {
 
 
 export abstract class Store<T extends object> {
-    static readonly _storeIdentifier: unique symbol;
-
     protected abstract state: T;
 
     constructor(historyConfig?: HistoryConfig) {
@@ -124,7 +122,7 @@ export abstract class Store<T extends object> {
 
     public static get<S extends object>(StoreConstructor: StoreApproved<S>): InstanceType<StoreApproved<S>> {
         const storeFound = Store.stores.get(StoreConstructor);
-        if(!storeFound) throw new Error("Store used before its initialization. Check component hierarchy. Must be in boundaries of useStore which uses @Store.Manage decorator.");
+        if(!storeFound) throw new Error("Store used before its initialization. Check component hierarchy. Must be in boundaries of useStore.");
         return storeFound.store;
     }
 

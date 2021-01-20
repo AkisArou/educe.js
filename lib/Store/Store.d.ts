@@ -1,14 +1,10 @@
 import { ENTIRE_STATE } from "../constants/ENTIRE_STATE";
 import { StoreApproved } from "../types";
-import { Managed } from "../decorators/Managed";
 interface HistoryConfig {
     readonly enableHistory: boolean;
     readonly historyLimit: number;
 }
 export declare abstract class Store<T extends object> {
-    static readonly _storeIdentifier: unique symbol;
-    /*** @decorator* */
-    static readonly Managed: typeof Managed;
     protected abstract state: T;
     constructor(historyConfig?: HistoryConfig);
     private readonly eventing;
@@ -34,7 +30,7 @@ export declare abstract class Store<T extends object> {
      * Dynamic store generation and removal by constructor arguments.
      *********** */
     private static stores;
-    static get<S extends object, StoreClass extends new (...args: any[]) => Store<S>>(StoreConstructor: StoreApproved<S> | StoreClass | (new () => Store<S>)): InstanceType<StoreClass>;
+    static get<S extends object>(StoreConstructor: StoreApproved<S>): InstanceType<StoreApproved<S>>;
     static getAddRef<S extends object>(StoreConstructor: StoreApproved<S>): Store<S>;
     static removeRefDelete<S extends object>(StoreConstructor: StoreApproved<S>): void;
 }
