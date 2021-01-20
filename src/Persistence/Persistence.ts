@@ -1,5 +1,4 @@
 import {StatePersisted} from "../decorators/StatePersisted";
-import {StoreConstructor, StoreStatic} from "../types";
 import {
     PersistenceTransformers,
     PersistenceTransformGet,

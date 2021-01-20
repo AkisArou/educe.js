@@ -1,8 +1,7 @@
 import {ENTIRE_STATE} from "../constants/ENTIRE_STATE";
 import Eventing from "../Eventing/Eventing";
 import {History} from "../History/History";
-import {StoreApproved, StoreStatic} from "../types";
-import {Managed} from "../decorators/Managed";
+import {StoreApproved} from "../types";
 
 interface HistoryConfig {
     readonly enableHistory: boolean;
@@ -12,9 +11,6 @@ interface HistoryConfig {
 
 export abstract class Store<T extends object> {
     static readonly _storeIdentifier: unique symbol;
-
-    /*** @decorator* */
-    static readonly Managed = Managed;
 
     protected abstract state: T;
 
@@ -124,27 +120,27 @@ export abstract class Store<T extends object> {
      * Dynamic store generation and removal by constructor arguments.
      *********** */
 
-    private static stores: Map<symbol, { store: Store<any>; refs: number }> = new Map();
+    private static stores: Map<StoreApproved<any>, { store: Store<any>; refs: number }> = new Map();
 
-    public static get<S extends object, StoreClass extends new (...args: any[]) => Store<S>>(StoreConstructor: StoreApproved<S> | StoreClass | (new () => Store<S>)): InstanceType<StoreClass> {
-        const storeFound = Store.stores.get((StoreConstructor as StoreStatic)._storeIdentifier) as { store: InstanceType<StoreClass>; refs: number } | undefined;
+    public static get<S extends object>(StoreConstructor: StoreApproved<S>): InstanceType<StoreApproved<S>> {
+        const storeFound = Store.stores.get(StoreConstructor);
         if(!storeFound) throw new Error("Store used before its initialization. Check component hierarchy. Must be in boundaries of useStore which uses @Store.Manage decorator.");
         return storeFound.store;
     }
 
     public static getAddRef<S extends object>(StoreConstructor: StoreApproved<S>): Store<S> {
-        const storeFound = Store.stores.get(StoreConstructor._storeIdentifier) ?? {
+        const storeFound = Store.stores.get(StoreConstructor) ?? {
             store: new StoreConstructor(),
             refs: 0
         };
         storeFound.refs++;
-        Store.stores.set(StoreConstructor._storeIdentifier, storeFound);
+        Store.stores.set(StoreConstructor, storeFound);
         return storeFound.store;
     }
 
     public static removeRefDelete<S extends object>(StoreConstructor: StoreApproved<S>): void {
-        const storeFound = Store.stores.get(StoreConstructor._storeIdentifier)!;
+        const storeFound = Store.stores.get(StoreConstructor)!;
         storeFound.refs--;
-        if (!storeFound.refs) Store.stores.delete(StoreConstructor._storeIdentifier);
+        if (!storeFound.refs) Store.stores.delete(StoreConstructor);
     }
 }
