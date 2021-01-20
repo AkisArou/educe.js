@@ -120,7 +120,7 @@ export abstract class Store<T extends object> {
 
     private static stores: Map<StoreApproved<any>, { store: Store<any>; refs: number }> = new Map();
 
-    public static get<S extends object>(StoreConstructor: StoreApproved<S>): InstanceType<StoreApproved<S>> {
+    public static get<S extends object>(StoreConstructor: StoreApproved<S>): Store<S> {
         const storeFound = Store.stores.get(StoreConstructor);
         if(!storeFound) throw new Error("Store used before its initialization. Check component hierarchy. Must be in boundaries of useStore.");
         return storeFound.store;
