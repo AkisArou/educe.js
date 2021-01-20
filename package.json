@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "React state management library with history and persistence functionality",
   "main": "lib/index.js",
-  "private": true,
+  "private": false,
   "types": "lib",
   "scripts": {
     "build": "tsc -p ."
@@ -13,7 +13,7 @@
     "state management"
   ],
   "author": "AkisArou",
-  "license": "ISC",
+  "license": "MIT",
   "peerDependencies": {
     "react": ">=16.8.0"
   },

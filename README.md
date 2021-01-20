@@ -1,7 +1,7 @@
 # Educe.js
 
 
-React-store is a simple at its interface, yet powerful state management solution for react, the OOP and react hooks way, built with TypeScript.
+Educe is a simple at its interface, yet powerful state management solution for react, the OOP and react hooks way, built with TypeScript.
 Uses the same API as React class based component, with the immutable pattern.
 Its reason to exist is a boilerplate-free code with zero cost abstractions.
 
@@ -94,7 +94,7 @@ const Light = () => {
 
 
 # Future
-- Will be used seperately from React. useStore, useStream, withStore will be used as React bindings.
+- Will be used separately from React. useStore, useStream, withStore will be used as React bindings.
 - Better documentation.
 - Tests.
 - Stable API.
