@@ -92,11 +92,11 @@ class ExampleStore extends Store<IExampleStoreState> {
         }, 10000);
     }
     
-    public increment() {
+    public increment = () => {
         this.setState({count: this.state.count + 1});
     }
     
-    public decrement() {
+    public decrement = () => {
         this.setState({count: this.state.count - 1});
     }
 }
@@ -108,8 +108,15 @@ const exampleStore = new ExampleStore();
 
 const Counter = () => {
   const {count} = useStore(exampleStore); 
-
-  return <h5>The count is: {count}</h5>
+  // or const [{count}, exampleStore] = useStore(ExampleStore); for managed instance
+  
+  return (
+    <div>
+        <h5>The count is: {count}</h5>
+        <button onClick={exampleStore.increment}>Increment</button>
+        <button onClick={exampleStore.decrement}>Decrement</button>
+    </div>
+  );
 };
 
 ```
@@ -125,7 +132,7 @@ class ExampleStream extends Stream<boolean> {
         return false;
     }
     
-    public toggle() {
+    public toggle = () => {
         this.onDataChanged(true);
     }
 }
@@ -138,8 +145,13 @@ const exampleStream = new ExampleStream();
 
 const Light = () => {
   const {isOpen} = useStream(exampleStream); 
-
-  return <h5>{isOpen ? "Open" : "Closed"}</h5>
+  
+  return (
+    <div>
+     <h5>{isOpen ? "Open" : "Closed"}</h5>
+     <button onClick={exampleStream.toggle}>Toggle</button>
+    </div>
+  );
 };
 ```
 
