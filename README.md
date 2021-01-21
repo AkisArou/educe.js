@@ -14,6 +14,57 @@ Consists of:
 - Persistence - class with static methods as state persistence helpers.
 - Store.Persisted - decorator for state persistence.
 
+#####  Store
+Observable base class with history functionality.
+Can be used independently.
+Can be instantiated explicitly or implicitly by providing your class in useStore or withStore and being reference counted. Whenever no reference exists, your store will be destructed.
+State subscriptions and unsubscriptions inside components happen implicitly by using js proxies.
+Call setState for immutable state update.
+You can also override requestEffects and requestCleanup as lifecycle methods.
+
+#####  Stream
+[AsyncIterable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for-await...of "AsyncIterable") base class for single value observation.
+Used independently or provided in useStream hook.
+Subscriptions and unsubscriptions happen implicitly.
+
+##### useStore
+React binding [hook](https://reactjs.org/docs/hooks-intro.html "hook") for state access..
+Provide the instance or the class of the store.
+Returns the state.
+Listens to any prop accessed by the returned state and only those.
+You can explicitly provide the props to listen.
+You can call requestEffects and requestCleanup as lifecycle methods by specifing the withEffects argument.
+Can be used to access the state only one time by specifing the listen argument.
+
+##### withStore
+React HOC for state access. Same functionality as useStore but the hoc style.
+TS: used only as decorator
+
+##### useStream
+React binding [hook](https://reactjs.org/docs/hooks-intro.html "hook") for state access. Also implicit subscription/unsubscription.
+
+
+##### Persistence
+Used as namespace for providing persistence utils.
+
+
+##### Persistence.Persisted
+ * Decorator/hof for Store subclasses.
+ * Persists state on each setState call.
+ * If provided database is synchronous, store gets instantiated with persisted state.
+ * If database is asynchronous, store gets instantiated with initial state,
+ * and when state is fetched, setState is internally called and updated.
+ *
+ * provide param StatePersistedConfig.
+ * databaseName: is used concatenated for storage key
+ * databaseVersion: versioning for the current Store. if version changes, old stored state is automatically, deleted.
+ * Can delete manually from Persistence.clearStorePersistedState
+ * database: default is localStorage, can set it here or can set default database from static Persistence.setDefaultDatabase
+ * transformers: transforms state before its saving and after its fetch.
+ * Use Persistence.createTransform, to pass function transformers for set and get database transactions.
+
+
+
 # Basic Store Example usage
 
 ```
@@ -111,4 +162,3 @@ License
 ----
 
 MIT
-
