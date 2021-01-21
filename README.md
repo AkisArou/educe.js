@@ -66,7 +66,7 @@ Used as namespace for providing persistence utils.
 
 
 # Basic Store Example usage
-[Open in sandbox](https://codesandbox.io/s/silent-grass-wtmuj?file=/src/Count.tsxhttp:// "Open in sandbox")
+[Open in sandbox](https://codesandbox.io/s/silent-grass-wtmuj?file=/src/Count.tsx "Open in sandbox")
 
 ```
 // ExampleStore.ts
