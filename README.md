@@ -71,7 +71,7 @@ Used as namespace for providing persistence utils.
 // ExampleStore.ts
 import {Store} from "educe";
 
-interfance IExampleStoreState {
+interface IExampleStoreState {
     count: number;
 }
 
