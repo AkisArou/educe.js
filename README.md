@@ -109,7 +109,8 @@ const exampleStore = new ExampleStore();
 
 const Counter = () => {
   const {count} = useStore(exampleStore); 
-  // or const [{count}, exampleStore] = useStore(ExampleStore); for managed instance
+  // or for managed instance
+  // const [{count}, exampleStore] = useStore(ExampleStore);
   
   return (
     <div>
