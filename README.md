@@ -122,6 +122,12 @@ const Counter = () => {
 };
 
 ```
+Store state can be used outside react components
+```
+const listener = (state: IExampleStoreState) => console.log(state.count);
+exampleStore.subscribe(listener, "count");
+exampleStore.unsubscribe(listener, new Set(["count"]));
+```
 
 # Basic Stream Example usage
 ```
@@ -155,6 +161,18 @@ const Light = () => {
     </div>
   );
 };
+```
+Stream value can be used outside react components
+```
+//With subscription
+const listener = (isOpen: boolean) => console.log(isOpen);
+exampleStream.subscribe(listener);
+exampleStream.unsubscribe(listener);
+
+// or as AsyncIterable
+for await (const isOpen of exampleStream) {
+    console.log(isOpen);
+}
 ```
 
 
