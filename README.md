@@ -97,7 +97,7 @@ export type ExampleStoreEvents = StoreEvents<{
 // ExampleStore.ts
 import {Store} from "educe";
 
-@InjectableStore(Lifetime.TRANSIENT)
+@InjectableStore(Lifetime.SINGLETON)
 export class ExampleStore extends Store<ExampleStoreState, ExampleStoreEvents> {
     protected state: ExampleStoreState = {
         count: 0,
@@ -134,24 +134,34 @@ export class ExampleStore extends Store<ExampleStoreState, ExampleStoreEvents> {
 }
 
 
-// Counter.tsx
-import {useStore} from "educe";
+// App.tsx
 
-const exampleStore = new ExampleStore();
+function App() {
+    const [{count}, store] = useStore(ExampleStore, {withEffects: true});
 
-const Counter = () => {
-  const {count} = useStore(exampleStore); 
-  // or for managed instance
-  // const [{count}, exampleStore] = useStore(ExampleStore);
-  
-  return (
-    <div>
-        <h5>The count is: {count}</h5>
-        <button onClick={exampleStore.increment}>Increment</button>
-        <button onClick={exampleStore.decrement}>Decrement</button>
-    </div>
-  );
-};
+    return (
+        <div style={style}>
+            <h1>Parent Count: {count}</h1>
+            <button onClick={() => store.addEvent({type: ExampleStoreEventType.Add, valueToAdd: 10})}>Parent add
+            </button>
+
+            <Child/>
+        </div>
+    );
+}
+
+function Child() {
+    const [{count}, store] = useStore(ExampleStore);
+
+    return (
+        <div>
+            <h5>Child Count: {count}</h5>
+            <button onClick={() => store.addEvent({type: ExampleStoreEventType.Deduct, valueToDeduct: 10})}>Child
+                subtract
+            </button>
+        </div>
+    )
+}
 
 ```
 
