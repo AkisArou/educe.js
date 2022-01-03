@@ -1,71 +1,77 @@
-import {useEffect, useRef, useState} from "react";
 import {Store} from "../Store/Store";
+import {StoreEvent} from "../Store/types";
 import {ENTIRE_STATE} from "../constants/ENTIRE_STATE";
-import {StoreApproved} from "../types";
+import {useEffect, useRef, useState} from "react";
+import {ContainerHolder, SharedContainer} from "../Container/ContainerHolder";
+import {Scope} from "../Container/Scope";
 
-type OmittedProps = "state" | keyof Pick<Store<any>, "requestCleanup" | "requestEffect" | "immutableState" | "subscribe" | "unsubscribe">;
+type OmittedProps<S extends object, E extends StoreEvent> =
+    | "state"
+    | "mapEventToState"
+    | keyof Pick<Store<S, StoreEvent>, "requestCleanup" | "requestEffect" | "_state" | "subscribe" | "unsubscribe">;
 
-export type SubProps<IStoreType> =
-    | (keyof IStoreType)[]
-    | keyof IStoreType
+export type SubProps<S extends object> =
+    | (keyof S)[]
+    | keyof S
     | typeof ENTIRE_STATE
     | null;
 
-function useStore<S extends object, StoreClass extends new (...args: any[]) => Store<S>>(
-    store: (new () => Store<S>) | StoreClass,
-    dynamicProps?: SubProps<S>,
-    withEffects?: boolean,
-    listen?: boolean
-): readonly [S, Omit<InstanceType<StoreClass>, OmittedProps>];
-function useStore<S extends object, StoreClass extends new (...args: any[]) => Store<S>>(
-    store: Store<S>,
-    dynamicProps?: SubProps<S>,
-    withEffects?: boolean,
-    listen?: boolean
-): S
-function useStore<S extends object, StoreClass extends new (...args: any[]) => Store<S>>(
-    store: Store<S> | (new () => Store<S>) | StoreClass,
-    dynamicProps?: SubProps<S>,
-    withEffects?: boolean,
-    listen: boolean = true
-): readonly [S, Omit<InstanceType<StoreClass>, OmittedProps>] | S {
-    const [actualStore] = useState<Store<S>>(() => typeof store === "function" ? Store.getAddRef(store as StoreApproved<S>) : store);
-    const [data, setState] = useState<S>(() => actualStore.immutableState);
+export interface UseStoreProps<S extends object> {
+    readonly dynamicProps?: SubProps<S>;
+    readonly withEffects?: boolean;
+    readonly listen?: boolean;
+}
+
+
+export function useStore<S extends object, E extends StoreEvent, StoreClass extends new (...args: any[]) => Store<S, E>>(
+    storeClass: StoreClass | (new () => Store<S, E>), {
+        dynamicProps,
+        withEffects = false,
+        listen = true
+    }: UseStoreProps<S> = {}): readonly [S, Omit<InstanceType<StoreClass>, OmittedProps<S, E>>] {
+    const [store] = useState<Store<S, E>>(() => ContainerHolder.instance.get(storeClass));
+    const [state, setState] = useState<S>(() => store._state);
     const {current: memoizedUnsubscribableProps} = useRef(new Set<keyof S | typeof ENTIRE_STATE>());
 
     const handler = {
-        get(target: S, prop: keyof S) {
-            if (listen && !memoizedUnsubscribableProps.has(prop) && !memoizedUnsubscribableProps.has(ENTIRE_STATE)) {
-                actualStore.subscribe(setState, prop);
-                memoizedUnsubscribableProps.add(prop);
+        get(target: object, prop: string) {
+            if (listen && !memoizedUnsubscribableProps.has(prop as keyof S) && !memoizedUnsubscribableProps.has(ENTIRE_STATE)) {
+                store.subscribe(prop as keyof S, setState);
+                memoizedUnsubscribableProps.add(prop as keyof S);
             }
-            return data[prop];
+            return state[prop as keyof S];
         }
     };
 
     useEffect(() => {
-        if (dynamicProps && listen) {
-            actualStore.subscribe(setState, dynamicProps);
+        if (!!dynamicProps && listen) {
+            store.subscribe(dynamicProps, setState);
 
             if (Array.isArray(dynamicProps))
                 dynamicProps.forEach(prop => memoizedUnsubscribableProps.add(prop));
-            else memoizedUnsubscribableProps.add(dynamicProps);
+            else
+                memoizedUnsubscribableProps.add(dynamicProps);
         }
 
-        withEffects && actualStore.requestEffect();
+        if (withEffects)
+            store.requestEffect()
 
         return () => {
-            listen && actualStore.unsubscribe(setState, memoizedUnsubscribableProps);
-            withEffects && actualStore.requestCleanup();
-            if (typeof store === "function") Store.removeRefDelete(store as StoreApproved<S>);
+            if (listen)
+                store.unsubscribe(memoizedUnsubscribableProps, setState);
+
+            if (withEffects)
+                store.requestCleanup();
+
+
+            const container = ContainerHolder.instance.getContainerByBoundClass(storeClass);
+
+            if (container.type === Scope.SHARED)
+                (container as SharedContainer).unGet(storeClass);
+
         };
     }, [withEffects, listen]);
 
 
-    return typeof store === "function"
-        ? [new Proxy(data, handler), actualStore as InstanceType<StoreClass> as Omit<InstanceType<StoreClass>, OmittedProps>] as const
-        : new Proxy(data, handler);
+    return [new Proxy(state, handler) as S, store as unknown as Omit<InstanceType<StoreClass>, OmittedProps<S, E>>] as const
 }
-
-
-export {useStore};
