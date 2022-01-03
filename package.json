@@ -1,6 +1,6 @@
 {
   "name": "educe",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "React state management library with history and persistence functionality",
   "main": "lib/index.js",
   "private": false,
