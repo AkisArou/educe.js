@@ -1,11 +1,11 @@
-import {StatePersisted} from "../decorators/StatePersisted";
+import {StatePersisted} from "./StatePersisted";
 import {
     PersistenceTransformers,
     PersistenceTransformGet,
     PersistenceTransformSet,
     StoreDatabase
-} from "../Persistence/types";
-import {PersistenceConst} from "../Persistence/constants";
+} from "./types";
+import {PersistenceConst} from "./constants";
 
 export const storageIdentifierGenerator = (dbName: string, dbVer: number) =>
     PersistenceConst.libName + dbName + PersistenceConst.dbVersion + dbVer;

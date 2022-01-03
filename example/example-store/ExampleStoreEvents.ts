@@ -1,4 +1,4 @@
-import {StoreEvents} from "../../educe/Store/types";
+import {StoreEvents} from "../../src/Store/types";
 
 export enum ExampleStoreEventType {
     Add,

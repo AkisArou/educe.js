@@ -8,22 +8,22 @@ export abstract class Stream<T> implements AsyncIterable<T> {
     private promiseResolvers: Promise<T>[] = [new Promise<T>(res => this.resolver = res)];
     private _hasFinished = false;
     private readonly onListenMustShowPreviousData: boolean;
-    private lastData: T | null = null;
+    private value: T | null = null;
 
     protected constructor(onListenMustShowPreviousData: boolean = false) {
         this.onListenMustShowPreviousData = onListenMustShowPreviousData;
     }
 
-    abstract get initialData(): T
+    abstract get initialValue(): T
 
-    public getLastData(): T {
-        return this.lastData ?? this.initialData;
+    public getValue(): T {
+        return this.value ?? this.initialValue;
     }
 
 
     async* [Symbol.asyncIterator](): AsyncIterator<T> {
         if (this.onListenMustShowPreviousData)
-            yield this.getLastData();
+            yield this.getValue();
 
         while (!this._hasFinished)
             yield this.promiseResolvers[0];
@@ -49,7 +49,7 @@ export abstract class Stream<T> implements AsyncIterable<T> {
 
     public subscribe(ls: Listener<T>): UnsubscribeFunction {
         if (this.onListenMustShowPreviousData)
-            ls(this.getLastData());
+            ls(this.getValue());
         this.listeners.add(ls);
         return () => this.listeners.delete(ls);
     }
@@ -58,8 +58,8 @@ export abstract class Stream<T> implements AsyncIterable<T> {
         this.listeners.delete(ls);
     }
 
-    public dataChanged(data: T): void {
-        if (this.onListenMustShowPreviousData) this.lastData = data;
+    public nextValue(data: T): void {
+        if (this.onListenMustShowPreviousData) this.value = data;
         this.listeners.forEach(ls => ls(data));
         this.resolver?.(data);
         this.promiseResolvers.splice(0, 1, new Promise<T>(res => this.resolver = res));
@@ -77,7 +77,7 @@ export abstract class Stream<T> implements AsyncIterable<T> {
         await this.return();
         this.resolver = undefined;
         this.promiseResolvers = [];
-        this.lastData = null;
+        this.value = null;
     }
 
     public onFinish(ls: Listener<void>): UnsubscribeFunction {

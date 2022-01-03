@@ -1,9 +1,9 @@
-import {InjectableStore} from "../../educe/Container/decorators";
-import {Store} from "../../educe/Store/Store";
-import {unreachableEvent} from "../../educe/Store/unreachableEvent";
-import {ExampleStoreEvents, ExampleStoreEventType} from "./ExampleStoreEvents";
+import {InjectableStore} from "../../src";
+import {Lifetime} from "../../src";
+import {Store} from "../../src"
 import {ExampleStoreState} from "./ExampleStoreState";
-import {Lifetime} from "../../educe/Container/Lifetime";
+import {ExampleStoreEvents, ExampleStoreEventType} from "./ExampleStoreEvents";
+import {unreachableEvent} from "../../src";
 
 @InjectableStore(Lifetime.TRANSIENT)
 export class ExampleStore extends Store<ExampleStoreState, ExampleStoreEvents> {
@@ -11,6 +11,14 @@ export class ExampleStore extends Store<ExampleStoreState, ExampleStoreEvents> {
         count: 0,
         followers: []
     };
+
+    public requestEffect() {
+        console.log("fetching something...");
+    }
+
+    public requestCleanup() {
+        console.log("close some websockets...");
+    }
 
     public mapEventToState(event: ExampleStoreEvents): void {
         switch (event.type) {
@@ -23,10 +31,13 @@ export class ExampleStore extends Store<ExampleStoreState, ExampleStoreEvents> {
             default:
                 unreachableEvent(event);
         }
+
+        // The code bellow throws when Store.addGlobalLifecycleObserver(new StateDeepFreezer())
+        // this.state.followers.push("new follower")
     }
 
-    public hello() : string {
-        return ""
+    public somePublicMethod(): void {
+        console.log("does something...");
     }
 }
 

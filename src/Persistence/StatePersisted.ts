@@ -1,9 +1,10 @@
-import {Persistence, storageIdentifierGenerator} from "../Persistence/Persistence";
+import {Persistence, storageIdentifierGenerator} from "./Persistence";
 import {StoreConstructor} from "../types";
-import {PersistenceTransformers, StoreDatabase} from "../Persistence/types";
-import {PersistenceConst} from "../Persistence/constants";
+import {PersistenceTransformers, StoreDatabase} from "./types";
+import {PersistenceConst} from "./constants";
+import {StoreEvent} from "../Store/types";
 
-interface StatePersistedConfig<T extends object> {
+export interface StatePersistedConfig<T extends object> {
     readonly databaseName: string;
     readonly databaseVersion?: number;
     readonly database?: StoreDatabase;
@@ -34,7 +35,7 @@ interface StoreExposed<T extends object> {
  * Use Persistence.createTransform, to pass function transformers for set and get database transactions.
  * */
 export function StatePersisted<T extends object>(config: StatePersistedConfig<T>) {
-    return function <S extends object>(target: StoreConstructor<S>) {
+    return function <S extends object, E extends StoreEvent>(target: StoreConstructor<S, E>) {
         // Class returns as proxied
         return new Proxy(target, {
             // StoreCls left any, for accessing .state property

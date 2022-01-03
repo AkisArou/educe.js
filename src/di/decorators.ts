@@ -1,6 +1,6 @@
 import {ContainerHolder} from "./ContainerHolder";
 import {Lifetime} from "./Lifetime";
-import {DefaultStoreConstructor, StoreConstructor} from "../types";
+import {StoreConstructor} from "../types";
 import {StoreEvent} from "../Store/types";
 
 export function InjectableStore(lifetime: Lifetime) {
@@ -8,15 +8,3 @@ export function InjectableStore(lifetime: Lifetime) {
         ContainerHolder.instance.bind(target).withLifetime(lifetime);
     }
 }
-
-// export function InjectStore(klass: DefaultStoreConstructor) {
-//     return function (target: any, propertyKey: string): void {
-//         Object.defineProperty(target, propertyKey, {
-//             get() {
-//                 const instance = ContainerHolder.instance.get(klass);
-//                 Object.defineProperty(this, propertyKey, {value: instance});
-//                 return instance;
-//             }
-//         });
-//     }
-// }

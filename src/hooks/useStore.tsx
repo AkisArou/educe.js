@@ -2,8 +2,9 @@ import {Store} from "../Store/Store";
 import {StoreEvent} from "../Store/types";
 import {ENTIRE_STATE} from "../constants/ENTIRE_STATE";
 import {useEffect, useRef, useState} from "react";
-import {ContainerHolder, SharedContainer} from "../Container/ContainerHolder";
-import {Scope} from "../Container/Scope";
+import {ContainerHolder} from "../di/ContainerHolder";
+import {Lifetime} from "../di/Lifetime";
+import {SharedContainer} from "../di/containers/SharedContainer";
 
 type OmittedProps<S extends object, E extends StoreEvent> =
     | "state"
@@ -66,7 +67,7 @@ export function useStore<S extends object, E extends StoreEvent, StoreClass exte
 
             const container = ContainerHolder.instance.getContainerByBoundClass(storeClass);
 
-            if (container.type === Scope.SHARED)
+            if (container.type === Lifetime.SHARED)
                 (container as SharedContainer).unGet(storeClass);
 
         };

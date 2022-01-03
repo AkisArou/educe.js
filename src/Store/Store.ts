@@ -1,20 +1,37 @@
 import {ENTIRE_STATE} from "../constants/ENTIRE_STATE";
 import Eventing from "../Eventing/Eventing";
 import {History} from "../History/History";
-import {StoreApproved} from "../types";
-
-interface HistoryConfig {
-    readonly enableHistory: boolean;
-    readonly historyLimit: number;
-}
+import {HistoryConfig} from "./types";
+import {IStoreLifecycleObserver,} from "./IStoreLifecycleObserver";
+import {DefaultStoreEvents} from "../types";
 
 
-export abstract class Store<T extends object> {
+export abstract class Store<T extends object, E extends DefaultStoreEvents> {
+    // Lifecycle observers
+    private static globalLifecycleObservers: IStoreLifecycleObserver<object, DefaultStoreEvents>[] = [];
+
+    public static addGlobalLifecycleObserver(lifecycleObserver: IStoreLifecycleObserver<object, DefaultStoreEvents>): void {
+        Store.globalLifecycleObservers.push(lifecycleObserver);
+    }
+
+    private lifecycleObserver?: IStoreLifecycleObserver<T, E>;
+
+    protected addLifecycleObserver(lifecycleObserver: IStoreLifecycleObserver<T, E>): void {
+        this.lifecycleObserver = lifecycleObserver;
+    }
+
+    protected enableHistory(historyConfig: HistoryConfig): void {
+        this.history = new History<T>(historyConfig.historyLimit);
+    }
+
+
+    /* State */
     protected abstract state: T;
 
-    constructor(historyConfig?: HistoryConfig) {
-        if (historyConfig?.enableHistory)
-            this.history = new History<T>(historyConfig.historyLimit);
+    private setNextState(state: T) {
+        this.state = state;
+        Store.globalLifecycleObservers.forEach(o => o.onSetState?.(state));
+        this.lifecycleObserver?.onSetState?.(state);
     }
 
     /* Eventing props */
@@ -23,19 +40,17 @@ export abstract class Store<T extends object> {
     public readonly unsubscribe = this.eventing.unsubscribe;
 
     /* History props */
-    private readonly history?: History<T>;
+    private history?: History<T>;
     private hasSavedFirstState = false;
 
 
-    /* Just used for state privacy. Not really immutable.
-       Not copied for no extra overhead. Maybe in the future becomes immutable
-       Used in useStore and preferred only there. */
-    public get immutableState(): T {
+    /* Exposed state for hooks usage */
+    public get _state(): T {
         return this.state;
     }
 
 
-    /* Lifecycle methods */
+    /* UI triggered Lifecycle methods */
     public requestEffect(): void {
     }
 
@@ -48,7 +63,7 @@ export abstract class Store<T extends object> {
     protected deletePropFromState(propName: keyof T): void {
         const newState = {...this.state};
         delete newState[propName];
-        this.state = newState;
+        this.setNextState(newState);
         this.history?.pushState(this.state);
         this.eventing.trigger(propName, this.state);
     }
@@ -60,7 +75,7 @@ export abstract class Store<T extends object> {
             this.history.pushState(this.state);
         }
 
-        this.state = {...this.state, ...updateProps};
+        this.setNextState({...this.state, ...updateProps});
         this.history?.pushState(this.state);
 
         for (let key of Object.keys(updateProps))
@@ -68,7 +83,7 @@ export abstract class Store<T extends object> {
     }
 
     protected resetState<K extends keyof T>(initialState: T): void {
-        this.state = initialState;
+        this.setNextState(initialState);
         if (!!this.history) {
             this.history!.clearStateHistory();
             this.hasSavedFirstState = false;
@@ -78,13 +93,23 @@ export abstract class Store<T extends object> {
             this.eventing.trigger(key as K, this.state);
     }
 
+    protected abstract mapEventToState(event: E): void;
+
+    public addEvent(event: E) {
+        this.lifecycleObserver?.onEventAdded?.(event);
+        Store.globalLifecycleObservers.forEach(o => o.onEventAdded?.(event));
+        this.mapEventToState(event);
+    }
+
 
     /* History methods */
 
-    // returns if has history
+    /**
+     * @return If has history
+     */
     private onHistoryChangeCommit<K extends keyof T>(newState: T | Partial<T> | undefined): boolean {
         if (!newState) return false;
-        this.state = {...this.state, ...newState};
+        this.setNextState({...this.state, ...newState});
 
         for (let key of Object.keys(newState))
             this.eventing.trigger(key as K, this.state);
@@ -110,36 +135,5 @@ export abstract class Store<T extends object> {
 
     protected clearStateHistory(): void {
         this.history?.clearStateHistory();
-    }
-
-
-    /**************
-     * @statics
-     * Dynamic store generation and removal by constructor arguments.
-     *********** */
-
-    private static stores: Map<StoreApproved<any>, { store: Store<any>; refs: number }> = new Map();
-
-
-    public static get<S extends object, StoreClass extends new () => Store<S>>(StoreConstructor: StoreApproved<S> | StoreClass | (new () => Store<S>)): InstanceType<StoreClass> {
-        const storeFound = Store.stores.get(StoreConstructor);
-        if (!storeFound) throw new Error("Store used before its initialization. Check component hierarchy. Must be in boundaries of useStore.");
-        return storeFound.store as InstanceType<StoreClass>;
-    }
-
-    public static getAddRef<S extends object>(StoreConstructor: StoreApproved<S>): Store<S> {
-        const storeFound = Store.stores.get(StoreConstructor) ?? {
-            store: new StoreConstructor(),
-            refs: 0
-        };
-        storeFound.refs++;
-        Store.stores.set(StoreConstructor, storeFound);
-        return storeFound.store;
-    }
-
-    public static removeRefDelete<S extends object>(StoreConstructor: StoreApproved<S>): void {
-        const storeFound = Store.stores.get(StoreConstructor)!;
-        storeFound.refs--;
-        if (!storeFound.refs) Store.stores.delete(StoreConstructor);
     }
 }

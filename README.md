@@ -15,21 +15,21 @@ Consists of:
 - Store.Persisted - decorator for state persistence.
 
 #####  Store
-Observable base class with history functionality.
-Can be used independently.
-Can be instantiated explicitly or implicitly by providing your class in useStore or withStore and being reference counted. Whenever no reference exists, your store will be destructed.
-State subscriptions and unsubscriptions inside components happen implicitly by using js proxies.
-Call setState for immutable state update.
-You can also override requestEffects and requestCleanup as lifecycle methods.
+- Observable base class with history functionality.
+- Manage its lifetime with decorators
+- Can be used independently.
+- State subscriptions inside components happen implicitly by using js proxies.
+- You can also override requestEffects and requestCleanup as lifecycle methods.
+- You can attach lifecycle observers by implementing the IStoreLifecycleObserver interface. (with addLifecycleObserver method) or add observers for all stores (with Store.addGlobalLifecycleObserver method)
 
 #####  Stream
 [AsyncIterable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for-await...of "AsyncIterable") base class for single value observation.
 Used independently or provided in useStream hook.
-Subscriptions and unsubscriptions happen implicitly.
+Subscriptions happen implicitly.
 
 ##### useStore
 React binding [hook](https://reactjs.org/docs/hooks-intro.html "hook") for state access..
-Provide the instance or the class of the store.
+Provide the class of the store.
 Returns the state.
 Listens to any prop accessed by the returned state and only those.
 You can explicitly provide the props to listen.
@@ -41,7 +41,7 @@ React HOC for state access. Same functionality as useStore but the hoc style.
 TS: used only as decorator
 
 ##### useStream
-React binding [hook](https://reactjs.org/docs/hooks-intro.html "hook") for state access. Also implicit subscription/unsubscription.
+React binding [hook](https://reactjs.org/docs/hooks-intro.html "hook") for state access. Also implicit subscription.
 
 
 ##### Persistence
@@ -68,39 +68,64 @@ Used as namespace for providing persistence utils.
 # Basic Store Example usage
 [Open in sandbox](https://codesandbox.io/s/silent-grass-wtmuj?file=/src/Count.tsx "Open in sandbox")
 
-```
+``` ts
+// ExampleStoreState.ts
+export interface ExampleStoreState {
+    count: number;
+    followers: string[]
+}
+
+// ExampleStoreEvents.ts
+export enum ExampleStoreEventType {
+    Add,
+    Deduct
+}
+
+export type ExampleStoreEvents = StoreEvents<{
+    CountAddEvent: { type: ExampleStoreEventType.Add, valueToAdd: number; }
+    CountDeductEvent: { type: ExampleStoreEventType.Deduct, valueToDeduct: number; }
+}>
+
+
 // ExampleStore.ts
 import {Store} from "educe";
 
-interface IExampleStoreState {
-    count: number;
+@InjectableStore(Lifetime.TRANSIENT)
+export class ExampleStore extends Store<ExampleStoreState, ExampleStoreEvents> {
+    protected state: ExampleStoreState = {
+        count: 0,
+        followers: []
+    };
+
+    public requestEffect() {
+        console.log("fetching something...");
+    }
+
+    public requestCleanup() {
+        console.log("close some websockets...");
+    }
+
+    public mapEventToState(event: ExampleStoreEvents): void {
+        switch (event.type) {
+            case ExampleStoreEventType.Add:
+                this.setState({count: this.state.count + event.valueToAdd})
+                break;
+            case ExampleStoreEventType.Deduct:
+                this.setState({count: this.state.count - event.valueToDeduct});
+                break;
+            default:
+                unreachableEvent(event);
+        }
+
+        // The code bellow throws when Store.addGlobalLifecycleObserver(new StateDeepFreezer())
+        // this.state.followers.push("new follower")
+    }
+
+    public somePublicMethod(): void {
+        console.log("does something...");
+    }
 }
 
-class ExampleStore extends Store<IExampleStoreState> {
-    protected state: IExampleStoreState = {
-      count: 0  
-    };
-    
-    requestEffect() {
-        setTimeout(() => {
-            this.setState({count: 10});
-        }, 2000);
-    }
-    
-    requestCleanup() {
-        setTimeout(() => {
-            this.setState({count: 0});
-        }, 10000);
-    }
-    
-    public increment = () => {
-        this.setState({count: this.state.count + 1});
-    }
-    
-    public decrement = () => {
-        this.setState({count: this.state.count - 1});
-    }
-}
 
 // Counter.tsx
 import {useStore} from "educe";
@@ -123,47 +148,65 @@ const Counter = () => {
 
 ```
 Store state can be used outside react components
+``` ts
+const listener = (state: ExampleStoreState) => console.log(state.count);
+exampleStore.subscribe("count", listener);
+exampleStore.unsubscribe(new Set(["count"]), listener);
 ```
-const listener = (state: IExampleStoreState) => console.log(state.count);
-exampleStore.subscribe(listener, "count");
-exampleStore.unsubscribe(listener, new Set(["count"]));
+
+Prevent mutations of state when on development
+```ts
+// index.tsx
+
+// Detect and throw for state mutations only in development
+if (process.env.NODE_ENV === 'development')
+    Store.addGlobalLifecycleObserver(new StateDeepFreezer())
 ```
 
 # Basic Stream Example usage
-```
-// ExampleStream.ts
+``` ts
+// ThemeStream.ts
 
 import {Stream} from "educe";
 
-class ExampleStream extends Stream<boolean> {
-    get initialData() {
-        return false;
+export enum Theme {
+    Light = "light",
+    Dark = "dark"
+}
+
+export class ThemeStream extends Stream<Theme> {
+    constructor() {
+        super(true);
     }
-    
-    public toggle = () => {
-        this.onDataChanged(true);
+
+    get initialValue(): Theme {
+        return Theme.Dark
+    }
+
+    public toggleTheme = () => {
+        this.nextValue(this.getValue() === Theme.Dark ? Theme.Light : Theme.Dark);
     }
 }
 
+export const themeStream = new ThemeStream();
 
-// Light.tsx
+// Theme.tsx
 import {useStream} from "educe";
 
-const exampleStream = new ExampleStream();
 
-const Light = () => {
-  const {isOpen} = useStream(exampleStream); 
+const Theme = () => {
+  const theme = useStream(themeStream);
   
   return (
     <div>
-     <h5>{isOpen ? "Open" : "Closed"}</h5>
-     <button onClick={exampleStream.toggle}>Toggle</button>
+        <h5>Theme: {theme === Theme.Dark ? "dark" : "light"}</h5>
+        <button onClick={themeStream.toggleTheme}>Toggle theme</button>
     </div>
   );
 };
 ```
 Stream value can be used outside react components
-```
+``` ts
 //With subscription
 const listener = (isOpen: boolean) => console.log(isOpen);
 exampleStream.subscribe(listener);
@@ -176,17 +219,16 @@ for await (const isOpen of exampleStream) {
 ```
 
 
+
 # Future
-- Will be used separately from React. useStore, useStream, withStore will be used as React bindings.
 - Better documentation.
 - Tests.
-- Stable API.
 
 ### Installation
 
-As of now, Educe.js requires [React.js](https://reactjs.org/) >=16.8.0+ to run. (The one with hooks)
+As of now, Educe.js requires [React](https://reactjs.org/) >=16.8.0+ to run. (The one with hooks)
 
-```sh
+```npm
 $ npm install educe --save
 ```
 

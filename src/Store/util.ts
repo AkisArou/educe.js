@@ -1,8 +1,4 @@
-import {Store} from "./Store";
-import {StoreEvent} from "./types";
-import {StoreConfiguration} from "./StoreConfiguration";
-
-function deepFreeze(object: any) {
+export function deepFreeze(object: any) {
     const propNames = Object.getOwnPropertyNames(object);
 
     for (const name of propNames) {
@@ -43,29 +39,4 @@ function deepFreeze(object: any) {
     }
 
     return Object.freeze(object);
-}
-
-/**
- * State Decorator
- */
-export function Immutable<T extends object, E extends StoreEvent>(target: Store<T, E>, prop: string): void {
-    if (!StoreConfiguration.getIsStrictStateImmutabilityCheckEnabled()) return;
-
-    let isConfigured = false
-    let stateRef: T;
-
-    Object.defineProperty(target, prop, {
-        configurable: false,
-        get() {
-            return stateRef;
-        },
-        set(state: T) {
-            stateRef = state
-
-            if (!isConfigured) {
-                deepFreeze(stateRef)
-                isConfigured = true
-            }
-        }
-    })
 }
